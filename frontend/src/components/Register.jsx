@@ -32,7 +32,17 @@ export default function Register() {
     if (!form.email.trim()) errors.email = 'Email is required.';
     else if (!/\S+@\S+\.\S+/.test(form.email)) errors.email = 'Enter a valid email address.';
     if (!form.password) errors.password = 'Password is required.';
-    else if (form.password.length < 8) errors.password = 'Password must be at least 8 characters.';
+    else {
+      const rules = {
+        length: form.password.length >= 8,
+        uppercase: /[A-Z]/.test(form.password),
+        lowercase: /[a-z]/.test(form.password),
+        digit: /[0-9]/.test(form.password),
+        special: /[^A-Za-z0-9]/.test(form.password),
+      };
+      const passed = Object.values(rules).filter(Boolean).length;
+      if (passed < 5) errors.password = 'Password must meet all 5 requirements to be Strong.';
+    }
     if (!form.confirm) errors.confirm = 'Please confirm your password.';
     else if (form.confirm !== form.password) errors.confirm = 'Passwords do not match.';
     return errors;
