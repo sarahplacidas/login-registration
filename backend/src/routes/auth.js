@@ -44,7 +44,7 @@ router.post(
 
     // Password strength gate
     const { strength } = getPasswordStrength(password);
-    if (strength === 'weak') {
+    if (strength !== 'strong') {
       return res.status(400).json({
         errors: [
           {
