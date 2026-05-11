@@ -1,19 +1,18 @@
-// @ts-check
-const { defineConfig, devices } = require('@playwright/test');
+import { defineConfig, devices } from '@playwright/test';
 
 /**
  * Playwright Configuration
  * Docs: https://playwright.dev/docs/test-configuration
  */
-module.exports = defineConfig({
+export default defineConfig({
   // Directory where all test files live
   testDir: './tests',
 
   // Runs once before all tests — seeds the DB with required test data
-  globalSetup: './tests/global-setup.js',
+  globalSetup: './tests/global-setup.ts',
 
   // Run tests in parallel across files
-  fullyParallel: false, // keep false to avoid DB race conditions between tests
+  fullyParallel: false, // false to avoid DB race conditions between tests
 
   // Fail the build on CI if you accidentally left test.only in source
   forbidOnly: !!process.env.CI,
@@ -24,7 +23,7 @@ module.exports = defineConfig({
   // Use 1 worker on CI to avoid DB race conditions; 2 locally
   workers: process.env.CI ? 1 : 2,
 
-  // Reporter: HTML report + console output
+  // Reporter: HTML report + console list output
   reporter: [
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
     ['list'],
@@ -47,24 +46,17 @@ module.exports = defineConfig({
     actionTimeout: 10_000,
   },
 
-  // Run tests in Chromium by default; add Firefox/WebKit on demand
   projects: [
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-    // Uncomment below to add more browsers
-    // {
-    //   name: 'firefox',
-    //   use: { ...devices['Desktop Firefox'] },
-    // },
-    // {
-    //   name: 'webkit',
-    //   use: { ...devices['Desktop Safari'] },
-    // },
+    // Uncomment to add more browsers:
+    // { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+    // { name: 'webkit',  use: { ...devices['Desktop Safari'] }  },
   ],
 
-  // Automatically start the dev servers before running tests
+  // Auto-start dev servers before running tests
   webServer: [
     {
       command: 'cd backend && npm run dev',

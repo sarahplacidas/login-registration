@@ -9,9 +9,9 @@
  * - Protected route redirects unauthenticated users
  */
 
-const { test, expect } = require('@playwright/test');
-const { loginUser, goToLogin, getAlertError } = require('../helpers/auth.helper');
-const { existingUser, wrongCredentials } = require('../fixtures/test-data');
+import { test, expect } from '@playwright/test';
+import { loginUser, goToLogin, getAlertError } from '../helpers/auth.helper';
+import { existingUser, wrongCredentials } from '../fixtures/test-data';
 
 test.describe('Login', () => {
 

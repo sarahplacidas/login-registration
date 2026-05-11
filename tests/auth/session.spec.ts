@@ -4,14 +4,13 @@
  * This works because the backend uses express-session with an httpOnly cookie.
  */
 
-const { test, expect } = require('@playwright/test');
-const { loginUser } = require('../helpers/auth.helper');
-const { existingUser } = require('../fixtures/test-data');
+import { test, expect } from '@playwright/test';
+import { loginUser } from '../helpers/auth.helper';
+import { existingUser } from '../fixtures/test-data';
 
 test.describe('Session Persistence', () => {
 
   test('✅ User stays logged in after page refresh', async ({ page }) => {
-    // Login first
     await loginUser(page, existingUser);
     await expect(page).toHaveURL(/\/dashboard/);
 
@@ -27,7 +26,7 @@ test.describe('Session Persistence', () => {
     await loginUser(page, existingUser);
     await expect(page).toHaveURL(/\/dashboard/);
 
-    // Navigate away and back
+    // Navigate away and come back
     await page.goto('http://localhost:3000/login');
     await page.goBack();
 
@@ -40,7 +39,7 @@ test.describe('Session Persistence', () => {
     await loginUser(page, existingUser);
     await expect(page).toHaveURL(/\/dashboard/);
 
-    // Make a direct API call within the same browser context (cookie is shared)
+    // Direct API call shares the same browser context (cookie included)
     const response = await page.request.get('http://localhost:5000/api/auth/me');
     const body = await response.json();
 

@@ -7,11 +7,19 @@
  * - Duplicate email rejection
  * - Weak password rejection
  * - Password mismatch
+ * - Password strength indicator
  */
 
-const { test, expect } = require('@playwright/test');
-const { registerUser, goToRegister, fillRegisterForm, submitRegisterForm, getAlertError, getFieldError } = require('../helpers/auth.helper');
-const { validUser, existingUser, weakPasswords } = require('../fixtures/test-data');
+import { test, expect } from '@playwright/test';
+import {
+  registerUser,
+  goToRegister,
+  fillRegisterForm,
+  submitRegisterForm,
+  getAlertError,
+  getFieldError,
+} from '../helpers/auth.helper';
+import { validUser, existingUser, weakPasswords } from '../fixtures/test-data';
 
 test.describe('Registration', () => {
 
@@ -24,7 +32,7 @@ test.describe('Registration', () => {
   });
 
   test('❌ Cannot register with duplicate email', async ({ page }) => {
-    // existingUser is seeded in global-setup.js
+    // existingUser is seeded in global-setup.ts
     await registerUser(page, existingUser);
 
     const error = await getAlertError(page);
@@ -74,7 +82,7 @@ test.describe('Registration', () => {
     expect(error).toContain('do not match');
   });
 
-  test('❌ Password strength indicator shows "Strong" for valid password', async ({ page }) => {
+  test('✅ Password strength indicator shows "Strong" for valid password', async ({ page }) => {
     await goToRegister(page);
     await page.fill('#password', 'Strong@1Pass');
 
@@ -83,7 +91,7 @@ test.describe('Registration', () => {
     await expect(page.locator('.strength-label')).toContainText('Strong');
   });
 
-  test('❌ Password strength indicator shows "Weak" for simple password', async ({ page }) => {
+  test('✅ Password strength indicator shows "Weak" for simple password', async ({ page }) => {
     await goToRegister(page);
     await page.fill('#password', 'password');
 

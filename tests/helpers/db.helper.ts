@@ -2,14 +2,14 @@
  * DB Helper
  * Direct database utilities for test setup & teardown.
  * Used to seed or clean test data without going through the UI.
- *
- * Requires: pg, dotenv (installed in backend/node_modules)
- * Run from root: node -e "require('./tests/helpers/db.helper').seedExistingUser()"
  */
 
-require('dotenv').config({ path: './backend/.env' });
-const { Pool } = require('pg');
-const bcrypt = require('bcryptjs');
+import * as dotenv from 'dotenv';
+dotenv.config({ path: './backend/.env' });
+
+import { Pool } from 'pg';
+import * as bcrypt from 'bcryptjs';
+import { existingUser } from '../fixtures/test-data';
 
 const pool = new Pool({
   host: process.env.DB_HOST || 'localhost',
@@ -23,8 +23,7 @@ const pool = new Pool({
  * Seed the "existing user" used in duplicate-email tests.
  * Safe to call multiple times — uses INSERT ... ON CONFLICT DO NOTHING.
  */
-async function seedExistingUser() {
-  const { existingUser } = require('../fixtures/test-data');
+export async function seedExistingUser(): Promise<void> {
   const salt = await bcrypt.genSalt(12);
   const hash = await bcrypt.hash(existingUser.password, salt);
 
@@ -39,27 +38,21 @@ async function seedExistingUser() {
 
 /**
  * Remove a user by email — useful for cleanup after tests.
- * @param {string} email
  */
-async function deleteUserByEmail(email) {
+export async function deleteUserByEmail(email: string): Promise<void> {
   await pool.query('DELETE FROM users WHERE email = $1', [email]);
   console.log(`[DB Helper] Deleted user: ${email}`);
 }
 
 /**
- * Remove all users whose emails start with the test prefix.
- * Keeps the existing seeded user intact.
+ * Remove all dynamically generated test users (sarah.test.* emails).
  */
-async function cleanTestUsers() {
+export async function cleanTestUsers(): Promise<void> {
   await pool.query("DELETE FROM users WHERE email LIKE 'sarah.test.%@example.com'");
   console.log('[DB Helper] Cleaned up test users');
 }
 
-/**
- * End the pool connection — call at the end of setup scripts.
- */
-async function closePool() {
+/** Close the pool connection — call at end of setup scripts. */
+export async function closePool(): Promise<void> {
   await pool.end();
 }
-
-module.exports = { seedExistingUser, deleteUserByEmail, cleanTestUsers, closePool };

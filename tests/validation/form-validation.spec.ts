@@ -4,24 +4,23 @@
  * give the user clear, accurate feedback.
  */
 
-const { test, expect } = require('@playwright/test');
-const {
+import { test, expect } from '@playwright/test';
+import {
   goToRegister,
   goToLogin,
   fillRegisterForm,
   submitRegisterForm,
   getFieldError,
-} = require('../helpers/auth.helper');
-const { weakPasswords, invalidEmails } = require('../fixtures/test-data');
+} from '../helpers/auth.helper';
+import { weakPasswords } from '../fixtures/test-data';
 
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
 // REGISTER — Required Fields
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
 test.describe('Register — Required Fields Validation', () => {
 
   test('❌ Empty name shows "Name is required"', async ({ page }) => {
     await goToRegister(page);
-    // Leave name empty, fill the rest
     await fillRegisterForm(page, { name: '', email: 'a@b.com', password: 'Strong@1!', confirm: 'Strong@1!' });
     await submitRegisterForm(page);
 
@@ -61,9 +60,9 @@ test.describe('Register — Required Fields Validation', () => {
 
 });
 
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
 // REGISTER — Email Format
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
 test.describe('Register — Invalid Email Format', () => {
 
   test('❌ "notanemail" is rejected', async ({ page }) => {
@@ -86,12 +85,12 @@ test.describe('Register — Invalid Email Format', () => {
 
 });
 
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
 // REGISTER — Password Strength Rules
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
 test.describe('Register — Password Strength Rules', () => {
 
-  async function expectStrengthError(page, password) {
+  async function expectStrengthError(page: import('@playwright/test').Page, password: string) {
     await goToRegister(page);
     await fillRegisterForm(page, { name: 'Test', email: 'pw@test.com', password, confirm: password });
     await submitRegisterForm(page);
@@ -121,9 +120,9 @@ test.describe('Register — Password Strength Rules', () => {
 
 });
 
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
 // LOGIN — Required Fields
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
 test.describe('Login — Required Fields Validation', () => {
 
   test('❌ Empty email shows "Email is required"', async ({ page }) => {

@@ -3,9 +3,9 @@
  * Verifies that logging out destroys the session and redirects properly.
  */
 
-const { test, expect } = require('@playwright/test');
-const { loginUser, logoutUser } = require('../helpers/auth.helper');
-const { existingUser } = require('../fixtures/test-data');
+import { test, expect } from '@playwright/test';
+import { loginUser, logoutUser } from '../helpers/auth.helper';
+import { existingUser } from '../fixtures/test-data';
 
 test.describe('Logout', () => {
 
@@ -22,12 +22,11 @@ test.describe('Logout', () => {
   });
 
   test('✅ After logout, /dashboard is no longer accessible', async ({ page }) => {
-    // Login and then logout
     await loginUser(page, existingUser);
     await expect(page).toHaveURL(/\/dashboard/);
     await logoutUser(page);
 
-    // Try to navigate back to dashboard — should be redirected
+    // Try to navigate back — should redirect to login
     await page.goto('http://localhost:3000/dashboard');
     await expect(page).toHaveURL(/\/login/);
   });

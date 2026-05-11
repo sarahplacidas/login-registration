@@ -3,11 +3,11 @@
  * Seeds required database records that tests depend on.
  */
 
-const { seedExistingUser, closePool } = require('./helpers/db.helper');
+import { seedExistingUser, closePool } from './helpers/db.helper';
 
-module.exports = async function globalSetup() {
+export default async function globalSetup(): Promise<void> {
   console.log('\n[Global Setup] Seeding test database...');
   await seedExistingUser();
   await closePool();
   console.log('[Global Setup] Done.\n');
-};
+}
