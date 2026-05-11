@@ -1,0 +1,100 @@
+name: Playwright E2E Tests
+
+on:
+  push:
+    branches: [main, master, "**"]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    name: Run Playwright Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # ── PostgreSQL service container ─────────────────────────────────────────
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: sarah
+          POSTGRES_DB: auth_demo
+        ports:
+          - 5432:5432
+        # Wait until Postgres is healthy before continuing
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      # ── 1. Checkout code ──────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Set up Node.js ─────────────────────────────────────────────────
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+            package-lock.json
+
+      # ── 3. Install root dependencies (Playwright) ─────────────────────────
+      - name: Install root dependencies
+        run: npm install
+
+      # ── 4. Install backend dependencies ───────────────────────────────────
+      - name: Install backend dependencies
+        run: npm install
+        working-directory: ./backend
+
+      # ── 5. Install frontend dependencies ──────────────────────────────────
+      - name: Install frontend dependencies
+        run: npm install
+        working-directory: ./frontend
+
+      # ── 6. Install Playwright browsers ────────────────────────────────────
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      # ── 7. Run database schema migration ──────────────────────────────────
+      - name: Run database schema
+        env:
+          PGPASSWORD: sarah
+        run: |
+          psql -h localhost -U postgres -d auth_demo -f backend/db/schema.sql
+
+      # ── 8. Create backend .env for CI ─────────────────────────────────────
+      - name: Create backend .env
+        run: |
+          cat > backend/.env << EOF
+          PORT=5000
+          DB_HOST=localhost
+          DB_PORT=5432
+          DB_NAME=auth_demo
+          DB_USER=postgres
+          DB_PASSWORD=sarah
+          SESSION_SECRET=ci_session_secret_do_not_use_in_production
+          NODE_ENV=test
+          EOF
+
+      # ── 9. Run Playwright tests (servers auto-started via webServer config) ─
+      - name: Run Playwright tests
+        run: npx playwright test
+        env:
+          CI: true
+
+      # ── 10. Upload HTML report as artifact on failure ─────────────────────
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

@@ -1,0 +1,24 @@
+{
+  "name": "login-registration",
+  "version": "1.0.0",
+  "description": "Full-stack Login & Registration app — React, Node.js/Express, PostgreSQL",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report",
+    "test:auth": "playwright test tests/auth/",
+    "test:validation": "playwright test tests/validation/",
+    "test:regression": "playwright test tests/regression/",
+    "backend": "cd backend && npm run dev",
+    "frontend": "cd frontend && npm run dev"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^16.6.1",
+    "pg": "^8.20.0"
+  }
+}
